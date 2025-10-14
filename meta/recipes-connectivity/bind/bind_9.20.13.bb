@@ -10,7 +10,6 @@ DEPENDS = "openssl libcap zlib libuv liburcu"
 
 SRC_URI = "https://ftp.isc.org/isc/bind9/${PV}/${BPN}-${PV}.tar.xz \
            file://conf.patch \
-           file://named.service \
            file://bind9 \
            file://generate-rndc-key.sh \
            file://make-etc-initd-bind-stop-work.patch \
@@ -52,8 +51,6 @@ USERADD_PARAM:${PN} = "--system --home ${localstatedir}/cache/bind --no-create-h
 INITSCRIPT_NAME = "bind"
 INITSCRIPT_PARAMS = "defaults"
 
-SYSTEMD_SERVICE:${PN} = "named.service"
-
 do_install:append() {
 
 	install -d -o bind "${D}${localstatedir}/cache/bind"
@@ -65,11 +62,6 @@ do_install:append() {
 	# Install systemd related files
 	install -d ${D}${sbindir}
 	install -m 755 ${UNPACKDIR}/generate-rndc-key.sh ${D}${sbindir}
-	install -d ${D}${systemd_system_unitdir}
-	install -m 0644 ${UNPACKDIR}/named.service ${D}${systemd_system_unitdir}
-	sed -i -e 's,@BASE_BINDIR@,${base_bindir},g' \
-	       -e 's,@SBINDIR@,${sbindir},g' \
-	       ${D}${systemd_system_unitdir}/named.service
 
 	install -d ${D}${sysconfdir}/default
 	install -m 0644 ${UNPACKDIR}/bind9 ${D}${sysconfdir}/default
